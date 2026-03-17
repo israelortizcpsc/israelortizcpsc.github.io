@@ -421,6 +421,195 @@
     .sidebar { display: none; }
   }
 
+  /* ── CONNECTION SPLASH ── */
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: #0a0d11;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  #splash.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .splash-window {
+    width: 520px;
+    max-width: 92vw;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+    animation: windowIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes windowIn {
+    from { opacity: 0; transform: scale(0.94) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .splash-titlebar {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    color: var(--gray);
+  }
+
+  .traffic-light {
+    display: flex; gap: 6px;
+  }
+
+  .tl { width: 12px; height: 12px; border-radius: 50%; }
+  .tl-r { background: #ff5f57; }
+  .tl-y { background: #febc2e; }
+  .tl-g { background: #28c840; }
+
+  .splash-titlebar span { margin-left: 0.4rem; }
+
+  .splash-body {
+    padding: 2rem 2rem 1.5rem;
+  }
+
+  .splash-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .splash-logo span { color: var(--cursor); }
+
+  .splash-sub {
+    font-size: 0.7rem;
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+  }
+
+  .splash-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .field-label { color: var(--gray); text-align: right; }
+
+  .field-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.4rem 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field-input:focus { border-color: var(--cursor); }
+  .field-input.readonly { color: var(--green); cursor: default; }
+
+  .field-sep {
+    grid-column: 1 / -1;
+    height: 1px;
+    background: var(--border);
+    margin: 0.25rem 0;
+  }
+
+  .connect-btn {
+    width: 100%;
+    background: var(--cursor);
+    color: #000;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+
+  .connect-btn:hover { opacity: 0.88; }
+  .connect-btn:active { transform: scale(0.98); }
+  .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Connecting state */
+  #connectingScreen {
+    display: none;
+    padding: 2rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .conn-log {
+    font-size: 0.72rem;
+    line-height: 2;
+    color: var(--gray);
+    min-height: 160px;
+  }
+
+  .conn-log .log-line {
+    display: block;
+    opacity: 0;
+    animation: logIn 0.1s ease both;
+  }
+
+  @keyframes logIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .log-ok   { color: var(--green); }
+  .log-info { color: var(--blue); }
+  .log-warn { color: var(--yellow); }
+  .log-err  { color: var(--red); }
+
+  .conn-bar-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .conn-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cursor), var(--green));
+    width: 0%;
+    transition: width 0.4s ease;
+    border-radius: 3px;
+  }
+
+  .conn-status {
+    font-size: 0.7rem;
+    color: var(--gray);
+    text-align: center;
+  }
+
   /* Section panels */
   .panel { display: none; }
   .panel.active { display: block; }
@@ -477,6 +666,59 @@
 </style>
 </head>
 <body>
+
+<!-- CONNECTION SPLASH -->
+<div id="splash">
+  <div class="splash-window">
+    <div class="splash-titlebar">
+      <div class="traffic-light">
+        <div class="tl tl-r"></div>
+        <div class="tl tl-y"></div>
+        <div class="tl tl-g"></div>
+      </div>
+      <span>New Connection — PostgreSQL</span>
+    </div>
+
+    <!-- Login form -->
+    <div class="splash-body" id="loginForm">
+      <div class="splash-logo">Query<span>DB</span> Studio <span style="color:var(--gray);font-weight:400;font-size:0.75rem">v4.2.1</span></div>
+      <div class="splash-sub">Connect to a PostgreSQL data source</div>
+
+      <div class="splash-fields">
+        <div class="field-row">
+          <span class="field-label">Host</span>
+          <input class="field-input readonly" value="portfolio.marcuschen.dev" readonly>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Port</span>
+          <input class="field-input readonly" value="5432" readonly>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Database</span>
+          <input class="field-input readonly" value="marcus_chen_portfolio" readonly>
+        </div>
+        <div class="field-sep"></div>
+        <div class="field-row">
+          <span class="field-label">Username</span>
+          <input class="field-input" id="userInput" value="guest" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Password</span>
+          <input class="field-input" id="passInput" type="password" placeholder="(leave blank — public access)" autocomplete="off">
+        </div>
+      </div>
+
+      <button class="connect-btn" onclick="startConnect()">Connect</button>
+    </div>
+
+    <!-- Connecting log -->
+    <div class="splash-body" id="connectingScreen" style="display:none;flex-direction:column;gap:1rem;">
+      <div class="conn-log" id="connLog"></div>
+      <div class="conn-bar-wrap"><div class="conn-bar" id="connBar"></div></div>
+      <div class="conn-status" id="connStatus">Initializing…</div>
+    </div>
+  </div>
+</div>
 
 <!-- Nav tabs -->
 <nav>
@@ -935,9 +1177,107 @@ function showNotify(title, body) {
   setTimeout(() => n.classList.remove('show'), 2500);
 }
 
-// Init
-renderQuery('about');
-executeQuery();
+// Init — deferred until after splash
+function initPortfolio() {
+  renderQuery('about');
+  executeQuery();
+}
+
+// ── SPLASH LOGIC ──
+const connMessages = [
+  { delay: 0,    cls: 'log-info', text: '» Resolving host portfolio.marcuschen.dev…' },
+  { delay: 320,  cls: 'log-ok',   text: '✓ Host resolved: 142.250.80.46' },
+  { delay: 600,  cls: 'log-info', text: '» Opening TCP connection on port 5432…' },
+  { delay: 950,  cls: 'log-ok',   text: '✓ TCP connection established' },
+  { delay: 1150, cls: 'log-info', text: '» Initiating SSL/TLS handshake…' },
+  { delay: 1480, cls: 'log-ok',   text: '✓ TLS 1.3 — cipher: TLS_AES_256_GCM_SHA384' },
+  { delay: 1700, cls: 'log-info', text: '» Authenticating as guest…' },
+  { delay: 2050, cls: 'log-ok',   text: '✓ Authentication successful (scram-sha-256)' },
+  { delay: 2250, cls: 'log-info', text: '» Connecting to database marcus_chen_portfolio…' },
+  { delay: 2600, cls: 'log-ok',   text: '✓ Connected — PostgreSQL 16.2 on x86_64-pc-linux-gnu' },
+  { delay: 2800, cls: 'log-info', text: '» Loading schema metadata…' },
+  { delay: 3100, cls: 'log-ok',   text: '✓ Schema loaded — 4 tables, 2 views, 2 functions' },
+  { delay: 3300, cls: 'log-ok',   text: '✓ Ready.' },
+];
+
+const barStops = [
+  { delay: 0,    pct: 5 },
+  { delay: 320,  pct: 18 },
+  { delay: 600,  pct: 32 },
+  { delay: 950,  pct: 44 },
+  { delay: 1150, pct: 55 },
+  { delay: 1480, pct: 65 },
+  { delay: 1700, pct: 72 },
+  { delay: 2050, pct: 82 },
+  { delay: 2250, pct: 88 },
+  { delay: 2600, pct: 93 },
+  { delay: 2800, pct: 96 },
+  { delay: 3100, pct: 99 },
+  { delay: 3300, pct: 100 },
+];
+
+const statusLabels = [
+  { delay: 0,    text: 'Resolving host…' },
+  { delay: 600,  text: 'Establishing connection…' },
+  { delay: 1150, text: 'Negotiating TLS…' },
+  { delay: 1700, text: 'Authenticating…' },
+  { delay: 2250, text: 'Loading database…' },
+  { delay: 2800, text: 'Fetching schema…' },
+  { delay: 3300, text: 'Connection established ✓' },
+];
+
+function startConnect() {
+  const btn = document.querySelector('.connect-btn');
+  btn.disabled = true;
+  btn.textContent = 'Connecting…';
+
+  document.getElementById('loginForm').style.display = 'none';
+  const cs = document.getElementById('connectingScreen');
+  cs.style.display = 'flex';
+
+  const log = document.getElementById('connLog');
+  const bar = document.getElementById('connBar');
+  const status = document.getElementById('connStatus');
+
+  connMessages.forEach(m => {
+    setTimeout(() => {
+      const span = document.createElement('span');
+      span.className = 'log-line ' + m.cls;
+      span.style.animationDelay = '0s';
+      span.textContent = m.text;
+      log.appendChild(span);
+      log.scrollTop = log.scrollHeight;
+    }, m.delay);
+  });
+
+  barStops.forEach(b => {
+    setTimeout(() => { bar.style.width = b.pct + '%'; }, b.delay);
+  });
+
+  statusLabels.forEach(s => {
+    setTimeout(() => { status.textContent = s.text; }, s.delay);
+  });
+
+  // Dismiss splash
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.classList.add('fade-out');
+    setTimeout(() => {
+      splash.style.display = 'none';
+      initPortfolio();
+    }, 520);
+  }, 3800);
+}
+
+// Allow pressing Enter in password field
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('passInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startConnect();
+  });
+  document.getElementById('userInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startConnect();
+  });
+});
 </script>
 </body>
 </html>
