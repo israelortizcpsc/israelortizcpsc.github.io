@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcus Chen — DBA Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #1c2128;
+    --border: #30363d;
+    --green: #3fb950;
+    --blue: #79c0ff;
+    --purple: #d2a8ff;
+    --orange: #ffa657;
+    --red: #ff7b72;
+    --yellow: #e3b341;
+    --gray: #8b949e;
+    --white: #e6edf3;
+    --cursor: #58a6ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Nav bar */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 44px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-tab {
+    height: 44px;
+    padding: 0 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--gray);
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .nav-tab.active {
+    color: var(--white);
+    background: var(--bg);
+  }
+
+  .nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--cursor);
+  }
+
+  .nav-tab:hover:not(.active) { background: var(--bg3); }
+
+  .tab-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  .tab-dot.orange { background: var(--orange); }
+  .tab-dot.blue { background: var(--blue); }
+  .tab-dot.purple { background: var(--purple); }
+
+  /* Main layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 44px);
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 1rem 0;
+    font-size: 0.78rem;
+  }
+
+  .sidebar-section {
+    margin-bottom: 0.5rem;
+  }
+
+  .sidebar-header {
+    padding: 0.4rem 1rem;
+    color: var(--gray);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .sidebar-header::before {
+    content: '▾';
+    color: var(--gray);
+    font-size: 0.6rem;
+  }
+
+  .sidebar-item {
+    padding: 0.35rem 1rem 0.35rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--gray);
+    transition: all 0.1s;
+  }
+
+  .sidebar-item:hover { background: var(--bg3); color: var(--white); }
+  .sidebar-item.active { color: var(--white); background: rgba(88,166,255,0.1); }
+
+  .sidebar-item .icon { font-size: 0.8rem; }
+  .table-icon { color: var(--orange); }
+  .view-icon { color: var(--blue); }
+  .fn-icon { color: var(--purple); }
+  .idx-icon { color: var(--yellow); }
+
+  /* Editor area */
+  .editor {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Query editor toolbar */
+  .toolbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--gray);
+  }
+
+  .run-btn {
+    background: var(--green);
+    color: #000;
+    border: none;
+    padding: 0.3rem 0.9rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: opacity 0.15s;
+  }
+
+  .run-btn:hover { opacity: 0.85; }
+
+  .toolbar-sep { width: 1px; height: 18px; background: var(--border); }
+
+  /* Query pane */
+  .query-pane {
+    background: var(--bg);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    min-height: 200px;
+  }
+
+  .line-numbers {
+    position: absolute;
+    left: 0; top: 1.5rem;
+    width: 2rem;
+    text-align: right;
+    color: var(--border);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    user-select: none;
+    padding-right: 0.5rem;
+  }
+
+  .query-content {
+    margin-left: 2.5rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .kw { color: var(--red); font-weight: 700; }
+  .fn { color: var(--purple); }
+  .str { color: var(--yellow); }
+  .col { color: var(--blue); }
+  .tbl { color: var(--orange); }
+  .op { color: var(--gray); }
+  .num { color: var(--green); }
+  .cm { color: var(--gray); font-style: italic; }
+
+  /* Typing cursor */
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--cursor);
+    margin-left: 1px;
+    vertical-align: text-bottom;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Results pane */
+  .results-pane {
+    flex: 1;
+    overflow: auto;
+  }
+
+  .results-header {
+    background: var(--bg2);
+    padding: 0.5rem 1rem;
+    font-size: 0.72rem;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+
+  .results-stat { color: var(--green); }
+
+  /* Data grid */
+  .grid-wrapper {
+    overflow: auto;
+    padding: 1rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 2px solid var(--border);
+  }
+
+  thead th {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    color: var(--gray);
+    font-weight: 500;
+    white-space: nowrap;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  thead th .type-badge {
+    font-size: 0.6rem;
+    color: var(--purple);
+    margin-left: 0.4rem;
+    opacity: 0.7;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+    animation: rowIn 0.3s ease both;
+  }
+
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  tbody tr:hover { background: var(--bg3); }
+
+  tbody td {
+    padding: 0.7rem 1rem;
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--white);
+  }
+
+  .null-val { color: var(--gray); font-style: italic; }
+  .int-val { color: var(--green); }
+  .arr-val { color: var(--purple); }
+  .bool-true { color: var(--green); }
+  .bool-false { color: var(--red); }
+  .link-val { color: var(--blue); text-decoration: underline; cursor: pointer; }
+
+  /* Section tabs within results */
+  .section-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 0 1rem;
+  }
+
+  .section-tab {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.75rem;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .section-tab.active { color: var(--white); border-bottom-color: var(--cursor); }
+  .section-tab:hover:not(.active) { color: var(--white); }
+
+  /* Skill pills */
+  .skill-pill {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    margin: 0.1rem;
+    border: 1px solid;
+  }
+
+  .pill-green { color: var(--green); border-color: var(--green); background: rgba(63,185,80,0.1); }
+  .pill-blue { color: var(--blue); border-color: var(--blue); background: rgba(121,192,255,0.1); }
+  .pill-purple { color: var(--purple); border-color: var(--purple); background: rgba(210,168,255,0.1); }
+  .pill-orange { color: var(--orange); border-color: var(--orange); background: rgba(255,166,87,0.1); }
+  .pill-red { color: var(--red); border-color: var(--red); background: rgba(255,123,114,0.1); }
+
+  /* Status bar */
+  .statusbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--cursor);
+    color: #000;
+    font-size: 0.7rem;
+    padding: 0.25rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    z-index: 200;
+  }
+
+  .statusbar span { font-weight: 500; }
+
+  /* Notification */
+  .notify {
+    position: fixed;
+    bottom: 2rem;
+    right: 1.5rem;
+    background: var(--bg3);
+    border: 1px solid var(--green);
+    border-left: 3px solid var(--green);
+    padding: 0.7rem 1rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    z-index: 300;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+
+  .notify.show { opacity: 1; transform: translateY(0); }
+  .notify .n-title { color: var(--green); font-weight: 700; margin-bottom: 0.2rem; }
+  .notify .n-body { color: var(--gray); }
+
+  /* Progress bar for query execution */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--green);
+    width: 0%;
+    transition: width 0.6s ease;
+  }
+
+  /* Responsive hint */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  /* Section panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .about-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .about-card p {
+    color: var(--gray);
+    font-size: 0.8rem;
+    line-height: 1.8;
+  }
+
+  .contact-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--blue);
+    cursor: pointer;
+  }
+
+  /* Query history sidebar note */
+  .history-item {
+    padding: 0.35rem 1rem 0.35rem 1.2rem;
+    font-size: 0.7rem;
+    color: var(--gray);
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.1s;
+    line-height: 1.5;
+  }
+  .history-item:hover { color: var(--white); border-left-color: var(--cursor); background: var(--bg3); }
+</style>
+</head>
+<body>
+
+<!-- Nav tabs -->
+<nav>
+  <div class="nav-tab active" onclick="switchTab(this, 'about')">
+    <div class="tab-dot"></div>
+    portfolio.sql
+  </div>
+  <div class="nav-tab" onclick="switchTab(this, 'projects')">
+    <div class="tab-dot orange"></div>
+    projects.sql
+  </div>
+  <div class="nav-tab" onclick="switchTab(this, 'skills')">
+    <div class="tab-dot blue"></div>
+    skills_schema.sql
+  </div>
+  <div class="nav-tab" onclick="switchTab(this, 'contact')">
+    <div class="tab-dot purple"></div>
+    contact.sql
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-header">TABLES</div>
+      <div class="sidebar-item active" onclick="runQuery('about')">
+        <span class="icon table-icon">⊞</span> engineers
+      </div>
+      <div class="sidebar-item" onclick="runQuery('projects')">
+        <span class="icon table-icon">⊞</span> projects
+      </div>
+      <div class="sidebar-item" onclick="runQuery('skills')">
+        <span class="icon table-icon">⊞</span> skills
+      </div>
+      <div class="sidebar-item" onclick="runQuery('certifications')">
+        <span class="icon table-icon">⊞</span> certifications
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-header">VIEWS</div>
+      <div class="sidebar-item" onclick="runQuery('highlights')">
+        <span class="icon view-icon">◫</span> career_highlights
+      </div>
+      <div class="sidebar-item" onclick="runQuery('contact')">
+        <span class="icon view-icon">◫</span> contact_info
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-header">FUNCTIONS</div>
+      <div class="sidebar-item">
+        <span class="icon fn-icon">ƒ</span> get_resume()
+      </div>
+      <div class="sidebar-item">
+        <span class="icon fn-icon">ƒ</span> hire_me()
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-header">HISTORY</div>
+      <div class="history-item" onclick="runQuery('about')">SELECT * FROM engineers…</div>
+      <div class="history-item" onclick="runQuery('skills')">SELECT skill_name, profi…</div>
+      <div class="history-item" onclick="runQuery('projects')">SELECT * FROM projects…</div>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="run-btn" onclick="executeQuery()">▶ Run</button>
+      <div class="toolbar-sep"></div>
+      <span>database: <span style="color:var(--orange)">marcus_chen_portfolio</span></span>
+      <div class="toolbar-sep"></div>
+      <span>schema: <span style="color:var(--blue)">public</span></span>
+    </div>
+
+    <!-- Query editor -->
+    <div class="query-pane" id="queryPane">
+      <div class="line-numbers" id="lineNums">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div>
+      <div class="query-content" id="queryContent">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <!-- Results -->
+    <div class="results-pane">
+      <div class="results-header">
+        <span>Results</span>
+        <span class="results-stat" id="rowCount">— rows</span>
+        <span id="execTime" style="color:var(--gray)"></span>
+      </div>
+      <div class="grid-wrapper" id="resultsGrid">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div class="statusbar">
+  <span>PostgreSQL 16.2</span>
+  <span>marcus_chen_portfolio</span>
+  <span id="statusMsg">Ready</span>
+  <span style="margin-left:auto">UTF-8</span>
+</div>
+
+<!-- Notification -->
+<div class="notify" id="notify">
+  <div class="n-title" id="nTitle"></div>
+  <div class="n-body" id="nBody"></div>
+</div>
+
+<script>
+const queries = {
+  about: {
+    lines: [
+      `<span class="cm">-- Who is this person?</span>`,
+      `<span class="kw">SELECT</span>`,
+      `  <span class="col">name</span><span class="op">,</span> <span class="col">title</span><span class="op">,</span> <span class="col">years_experience</span><span class="op">,</span>`,
+      `  <span class="col">location</span><span class="op">,</span> <span class="col">specialization</span><span class="op">,</span> <span class="col">available_for_hire</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">engineers</span>`,
+      `<span class="kw">WHERE</span> <span class="col">name</span> <span class="op">=</span> <span class="str">'Marcus Chen'</span>`,
+      `  <span class="kw">AND</span> <span class="col">status</span> <span class="op">=</span> <span class="str">'open_to_work'</span><span class="op">;</span>`,
+      ``
+    ],
+    result: () => `
+      <table>
+        <thead>
+          <tr>
+            <th>name <span class="type-badge">VARCHAR</span></th>
+            <th>title <span class="type-badge">VARCHAR</span></th>
+            <th>years_experience <span class="type-badge">INT</span></th>
+            <th>location <span class="type-badge">VARCHAR</span></th>
+            <th>specialization <span class="type-badge">TEXT[]</span></th>
+            <th>available_for_hire <span class="type-badge">BOOL</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="animation-delay:0.05s">
+            <td>Marcus Chen</td>
+            <td style="color:var(--orange)">Senior Database Administrator</td>
+            <td class="int-val">9</td>
+            <td>San Francisco, CA</td>
+            <td class="arr-val">{"PostgreSQL","AWS RDS","Query Optimization","HA Architecture"}</td>
+            <td class="bool-true">true</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
+        <span style="color:var(--green)">●</span> 1 row returned in 0.003ms
+      </div>
+    `,
+    rows: 1, time: '0.003ms'
+  },
+
+  projects: {
+    lines: [
+      `<span class="cm">-- Major projects shipped</span>`,
+      `<span class="kw">SELECT</span>`,
+      `  <span class="col">project_name</span><span class="op">,</span> <span class="col">tech_stack</span><span class="op">,</span> <span class="col">impact</span><span class="op">,</span>`,
+      `  <span class="col">query_improvement</span><span class="op">,</span> <span class="col">year</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">projects</span>`,
+      `<span class="kw">ORDER BY</span> <span class="col">year</span> <span class="kw">DESC</span>`,
+      `<span class="kw">LIMIT</span> <span class="num">5</span><span class="op">;</span>`,
+      ``
+    ],
+    result: () => `
+      <table>
+        <thead>
+          <tr>
+            <th>project_name <span class="type-badge">VARCHAR</span></th>
+            <th>tech_stack <span class="type-badge">TEXT[]</span></th>
+            <th>impact <span class="type-badge">TEXT</span></th>
+            <th>query_improvement <span class="type-badge">VARCHAR</span></th>
+            <th>year <span class="type-badge">INT</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['Zero-Downtime Migration', '{"PostgreSQL 16","pglogical","AWS DMS"}', 'Migrated 2.3TB Oracle DB with 99.999% uptime', '11min → 38sec', 2024],
+            ['Global Replication Mesh', '{"PostgreSQL","Patroni","HAProxy","Consul"}', 'Built 5-region HA cluster for fintech platform', 'RTO < 30s', 2024],
+            ['Query Performance Overhaul', '{"PostgreSQL","EXPLAIN ANALYZE","pgBadger"}', 'Reduced avg query time by 94% across 800M row tables', '11min → 38sec', 2023],
+            ['Connection Pool Redesign', '{"pgBouncer","PgCat","Kubernetes"}', 'Eliminated connection storms — 0 timeouts for 8 months', '97 idle → 0', 2023],
+            ['Automated Backup Verification', '{"PostgreSQL","Python","Terraform","RDS"}', 'Full restore + validation pipeline, audit-ready', '4hr manual → 12min', 2022],
+          ].map((r, i) => `
+            <tr style="animation-delay:${0.05 + i*0.07}s">
+              <td style="color:var(--blue)">${r[0]}</td>
+              <td class="arr-val">${r[1]}</td>
+              <td style="color:var(--gray);font-size:0.74rem">${r[2]}</td>
+              <td style="color:var(--green)">${r[3]}</td>
+              <td class="int-val">${r[4]}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
+        <span style="color:var(--green)">●</span> 5 rows returned in 0.012ms
+      </div>
+    `,
+    rows: 5, time: '0.012ms'
+  },
+
+  skills: {
+    lines: [
+      `<span class="cm">-- Skills ranked by proficiency</span>`,
+      `<span class="kw">SELECT</span> <span class="col">skill_name</span><span class="op">,</span> <span class="col">category</span><span class="op">,</span>`,
+      `  <span class="fn">REPEAT</span><span class="op">(</span><span class="str">'█'</span><span class="op">,</span> <span class="col">proficiency</span><span class="op">) ||</span>`,
+      `  <span class="fn">REPEAT</span><span class="op">(</span><span class="str">'░'</span><span class="op">,</span> <span class="num">10</span> <span class="op">-</span> <span class="col">proficiency</span><span class="op">)</span> <span class="kw">AS</span> <span class="col">level</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">skills</span>`,
+      `<span class="kw">ORDER BY</span> <span class="col">proficiency</span> <span class="kw">DESC</span><span class="op">,</span> <span class="col">category</span><span class="op">;</span>`,
+      ``,
+      ``
+    ],
+    result: () => {
+      const skills = [
+        ['PostgreSQL', 'Core DB', 10],
+        ['Query Optimization', 'Performance', 10],
+        ['Index Strategy', 'Performance', 9],
+        ['Replication & HA', 'Architecture', 9],
+        ['AWS RDS / Aurora', 'Cloud', 9],
+        ['pgBouncer / Pooling', 'Infra', 8],
+        ['Python (automation)', 'Scripting', 8],
+        ['MySQL / MariaDB', 'Core DB', 8],
+        ['Terraform', 'IaC', 7],
+        ['Oracle DB', 'Core DB', 7],
+        ['Redis', 'Cache Layer', 7],
+        ['Datadog / Monitoring', 'Observability', 7],
+      ];
+      return `
+        <table>
+          <thead>
+            <tr>
+              <th>skill_name <span class="type-badge">VARCHAR</span></th>
+              <th>category <span class="type-badge">VARCHAR</span></th>
+              <th>proficiency <span class="type-badge">INT</span></th>
+              <th>level <span class="type-badge">TEXT</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${skills.map((s, i) => `
+              <tr style="animation-delay:${0.03 + i*0.05}s">
+                <td style="color:var(--white)">${s[0]}</td>
+                <td><span class="skill-pill ${['Core DB','Performance','Architecture'].includes(s[1]) ? 'pill-orange' : s[1]==='Cloud'?'pill-blue':s[1]==='Scripting'?'pill-purple':'pill-green'}">${s[1]}</span></td>
+                <td class="int-val">${s[2]}</td>
+                <td style="color:var(--green);letter-spacing:1px;font-size:0.75rem">${'█'.repeat(s[2])}${'░'.repeat(10-s[2])}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
+          <span style="color:var(--green)">●</span> 12 rows returned in 0.008ms
+        </div>
+      `;
+    },
+    rows: 12, time: '0.008ms'
+  },
+
+  certifications: {
+    lines: [
+      `<span class="cm">-- Active certifications</span>`,
+      `<span class="kw">SELECT</span> <span class="col">cert_name</span><span class="op">,</span> <span class="col">issuer</span><span class="op">,</span>`,
+      `  <span class="col">issued_date</span><span class="op">,</span> <span class="col">expiry</span><span class="op">,</span> <span class="col">status</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">certifications</span>`,
+      `<span class="kw">WHERE</span> <span class="col">status</span> <span class="op">=</span> <span class="str">'ACTIVE'</span>`,
+      `<span class="kw">ORDER BY</span> <span class="col">issued_date</span> <span class="kw">DESC</span><span class="op">;</span>`,
+      ``,
+      ``
+    ],
+    result: () => `
+      <table>
+        <thead>
+          <tr>
+            <th>cert_name <span class="type-badge">VARCHAR</span></th>
+            <th>issuer <span class="type-badge">VARCHAR</span></th>
+            <th>issued_date <span class="type-badge">DATE</span></th>
+            <th>expiry <span class="type-badge">DATE</span></th>
+            <th>status <span class="type-badge">ENUM</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['DP-300: Azure Database Admin Associate', 'Microsoft', '2023-06-15', '2025-06-15', true],
+            ['Oracle Database SQL Certified Associate', 'Oracle', '2022-03-01', '2024-03-01', true],
+            ['AWS Certified Database Specialty', 'Amazon', '2023-11-20', '2025-11-20', true],
+          ].map((r,i) => `
+            <tr style="animation-delay:${0.05+i*0.08}s">
+              <td style="color:var(--blue)">${r[0]}</td>
+              <td style="color:var(--orange)">${r[1]}</td>
+              <td style="color:var(--gray)">${r[2]}</td>
+              <td style="color:var(--gray)">${r[3]}</td>
+              <td><span class="skill-pill pill-green">${r[4] ? 'ACTIVE' : 'EXPIRED'}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
+        <span style="color:var(--green)">●</span> 3 rows returned in 0.005ms
+      </div>
+    `,
+    rows: 3, time: '0.005ms'
+  },
+
+  highlights: {
+    lines: [
+      `<span class="cm">-- Career highlights view</span>`,
+      `<span class="kw">SELECT</span> <span class="op">*</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">career_highlights</span>`,
+      `<span class="kw">WHERE</span> <span class="fn">EXTRACT</span><span class="op">(</span><span class="kw">YEAR FROM</span> <span class="col">event_date</span><span class="op">)</span> <span class="op">>=</span> <span class="num">2020</span>`,
+      `<span class="kw">ORDER BY</span> <span class="col">impact_score</span> <span class="kw">DESC</span><span class="op">;</span>`,
+      ``,
+      ``,
+      ``
+    ],
+    result: () => `
+      <table>
+        <thead>
+          <tr>
+            <th>event_date <span class="type-badge">DATE</span></th>
+            <th>milestone <span class="type-badge">TEXT</span></th>
+            <th>company <span class="type-badge">VARCHAR</span></th>
+            <th>impact_score <span class="type-badge">INT</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['2024-03-01', 'Led zero-downtime Oracle → PostgreSQL migration of 2.3TB', 'DataCore Inc.', 100],
+            ['2023-09-15', 'Architected 5-region HA cluster serving 40M daily transactions', 'DataCore Inc.', 98],
+            ['2023-04-01', 'Cut p99 query latency from 11min to 38sec, saving $120k/yr', 'DataCore Inc.', 97],
+            ['2022-07-10', 'Promoted to Senior DBA — managed fleet of 200+ database instances', 'CloudBase LLC', 90],
+            ['2021-01-20', 'Built automated backup validation pipeline — first in company history', 'CloudBase LLC', 85],
+          ].map((r,i) => `
+            <tr style="animation-delay:${0.05+i*0.07}s">
+              <td style="color:var(--gray)">${r[0]}</td>
+              <td style="color:var(--white);font-size:0.76rem">${r[1]}</td>
+              <td style="color:var(--orange)">${r[2]}</td>
+              <td class="int-val">${r[3]}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
+        <span style="color:var(--green)">●</span> 5 rows returned in 0.009ms
+      </div>
+    `,
+    rows: 5, time: '0.009ms'
+  },
+
+  contact: {
+    lines: [
+      `<span class="cm">-- Let's connect</span>`,
+      `<span class="kw">SELECT</span> <span class="col">channel</span><span class="op">,</span> <span class="col">handle</span><span class="op">,</span> <span class="col">preferred</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">contact_info</span>`,
+      `<span class="kw">WHERE</span> <span class="col">engineer_id</span> <span class="op">=</span> <span class="num">1</span>`,
+      `  <span class="kw">AND</span> <span class="col">public</span> <span class="op">=</span> <span class="bool-true">TRUE</span><span class="op">;</span>`,
+      ``,
+      ``,
+      ``
+    ],
+    result: () => `
+      <table>
+        <thead>
+          <tr>
+            <th>channel <span class="type-badge">VARCHAR</span></th>
+            <th>handle <span class="type-badge">TEXT</span></th>
+            <th>preferred <span class="type-badge">BOOL</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['Email', 'marcus.chen@example.com', true],
+            ['LinkedIn', 'linkedin.com/in/marcuschen-dba', true],
+            ['GitHub', 'github.com/marcuschen', false],
+            ['Twitter/X', '@marcuschen_dba', false],
+          ].map((r,i) => `
+            <tr style="animation-delay:${0.05+i*0.08}s">
+              <td style="color:var(--purple)">${r[0]}</td>
+              <td class="link-val">${r[1]}</td>
+              <td class="${r[2] ? 'bool-true' : 'bool-false'}">${r[2]}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
+        <span style="color:var(--green)">●</span> 4 rows returned in 0.002ms
+        <br><br>
+        <span style="color:var(--yellow)">⚡</span> <span style="color:var(--white)">INSERT INTO outreach(message) VALUES('Hello Marcus') — avg response time: 2 hours</span>
+      </div>
+    `,
+    rows: 4, time: '0.002ms'
+  }
+};
+
+let currentQuery = 'about';
+
+function renderQuery(key) {
+  const q = queries[key];
+  if (!q) return;
+  currentQuery = key;
+
+  const lineNums = document.getElementById('lineNums');
+  const qc = document.getElementById('queryContent');
+
+  lineNums.innerHTML = q.lines.map((_, i) => i + 1).join('<br>');
+  qc.innerHTML = q.lines.join('<br>') + '<span class="cursor"></span>';
+}
+
+function executeQuery() {
+  const fill = document.getElementById('progressFill');
+  const rowCount = document.getElementById('rowCount');
+  const execTime = document.getElementById('execTime');
+  const statusMsg = document.getElementById('statusMsg');
+  const grid = document.getElementById('resultsGrid');
+  const q = queries[currentQuery];
+
+  statusMsg.textContent = 'Executing query...';
+  fill.style.width = '0%';
+  grid.innerHTML = '';
+
+  setTimeout(() => { fill.style.width = '60%'; }, 50);
+  setTimeout(() => { fill.style.width = '100%'; }, 400);
+
+  setTimeout(() => {
+    grid.innerHTML = q.result();
+    rowCount.textContent = q.rows + (q.rows === 1 ? ' row' : ' rows');
+    execTime.textContent = '  Execution time: ' + q.time;
+    statusMsg.textContent = 'Query executed successfully';
+    fill.style.width = '0%';
+    showNotify('Query Complete', `${q.rows} row${q.rows !== 1 ? 's' : ''} returned in ${q.time}`);
+  }, 600);
+}
+
+function runQuery(key) {
+  renderQuery(key);
+
+  // Update sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add('active');
+
+  executeQuery();
+}
+
+function switchTab(el, key) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderQuery(key);
+  executeQuery();
+}
+
+function showNotify(title, body) {
+  const n = document.getElementById('notify');
+  document.getElementById('nTitle').textContent = title;
+  document.getElementById('nBody').textContent = body;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 2500);
+}
+
+// Init
+renderQuery('about');
+executeQuery();
+</script>
+</body>
+</html>
