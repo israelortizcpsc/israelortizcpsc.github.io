@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Israel Ortiz — SQL Developer / DBA Portfolio</title>
+<title>Israel Ortiz — Data Systems Administrator & SQL Integration Engineer</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -676,22 +676,22 @@
         <div class="tl tl-y"></div>
         <div class="tl tl-g"></div>
       </div>
-      <span>New Connection — PostgreSQL</span>
+      <span>New Connection — SQL Server</span>
     </div>
 
     <!-- Login form -->
     <div class="splash-body" id="loginForm">
       <div class="splash-logo">Query<span>DB</span> Studio <span style="color:var(--gray);font-weight:400;font-size:0.75rem">v4.2.1</span></div>
-      <div class="splash-sub">Connect to a PostgreSQL data source</div>
+      <div class="splash-sub">Connect to a SQL Server data source</div>
 
       <div class="splash-fields">
         <div class="field-row">
-          <span class="field-label">Host</span>
-          <input class="field-input readonly" value="portfolio.israelortiz.dev" readonly>
+          <span class="field-label">Server</span>
+          <input class="field-input readonly" value="portfolio.israelortiz.dev\SQLEXPRESS" readonly>
         </div>
         <div class="field-row">
           <span class="field-label">Port</span>
-          <input class="field-input readonly" value="5432" readonly>
+          <input class="field-input readonly" value="1433" readonly>
         </div>
         <div class="field-row">
           <span class="field-label">Database</span>
@@ -699,7 +699,7 @@
         </div>
         <div class="field-sep"></div>
         <div class="field-row">
-          <span class="field-label">Username</span>
+          <span class="field-label">Login</span>
           <input class="field-input" id="userInput" value="guest" autocomplete="off" spellcheck="false">
         </div>
         <div class="field-row">
@@ -768,12 +768,21 @@
       </div>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-header">FUNCTIONS</div>
+      <div class="sidebar-header">STORED PROCEDURES</div>
       <div class="sidebar-item">
-        <span class="icon fn-icon">ƒ</span> get_resume()
+        <span class="icon fn-icon">ƒ</span> sp_get_resume
       </div>
       <div class="sidebar-item">
-        <span class="icon fn-icon">ƒ</span> hire_me()
+        <span class="icon fn-icon">ƒ</span> sp_hire_me
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-header">SSIS PACKAGES</div>
+      <div class="sidebar-item">
+        <span class="icon idx-icon">⇄</span> ETL_CRM_Import
+      </div>
+      <div class="sidebar-item">
+        <span class="icon idx-icon">⇄</span> ETL_Vendor_Feed
       </div>
     </div>
     <div class="sidebar-section">
@@ -788,11 +797,11 @@
   <div class="editor">
     <!-- Toolbar -->
     <div class="toolbar">
-      <button class="run-btn" onclick="executeQuery()">▶ Run</button>
+      <button class="run-btn" onclick="executeQuery()">▶ Execute</button>
       <div class="toolbar-sep"></div>
-      <span>database: <span style="color:var(--orange)">israel_ortiz_portfolio</span></span>
+      <span>server: <span style="color:var(--orange)">portfolio.israelortiz.dev\SQLEXPRESS</span></span>
       <div class="toolbar-sep"></div>
-      <span>schema: <span style="color:var(--blue)">public</span></span>
+      <span>db: <span style="color:var(--blue)">israel_ortiz_portfolio</span></span>
     </div>
 
     <!-- Query editor -->
@@ -821,7 +830,7 @@
 
 <!-- Status bar -->
 <div class="statusbar">
-  <span>PostgreSQL 16.2</span>
+  <span>SQL Server 2022</span>
   <span>israel_ortiz_portfolio</span>
   <span id="statusMsg">Ready</span>
   <span style="margin-left:auto">UTF-8</span>
@@ -838,10 +847,10 @@ const queries = {
   about: {
     lines: [
       `<span class="cm">-- Who is this person?</span>`,
-      `<span class="kw">SELECT</span>`,
+      `<span class="kw">SELECT TOP 1</span>`,
       `  <span class="col">name</span><span class="op">,</span> <span class="col">title</span><span class="op">,</span> <span class="col">years_experience</span><span class="op">,</span>`,
       `  <span class="col">location</span><span class="op">,</span> <span class="col">specialization</span><span class="op">,</span> <span class="col">available_for_hire</span>`,
-      `<span class="kw">FROM</span> <span class="tbl">engineers</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">dbo.engineers</span>`,
       `<span class="kw">WHERE</span> <span class="col">name</span> <span class="op">=</span> <span class="str">'Israel Ortiz'</span>`,
       `  <span class="kw">AND</span> <span class="col">status</span> <span class="op">=</span> <span class="str">'open_to_work'</span><span class="op">;</span>`,
       ``
@@ -850,27 +859,27 @@ const queries = {
       <table>
         <thead>
           <tr>
-            <th>name <span class="type-badge">VARCHAR</span></th>
-            <th>title <span class="type-badge">VARCHAR</span></th>
+            <th>name <span class="type-badge">NVARCHAR</span></th>
+            <th>title <span class="type-badge">NVARCHAR</span></th>
             <th>years_experience <span class="type-badge">INT</span></th>
-            <th>location <span class="type-badge">VARCHAR</span></th>
-            <th>specialization <span class="type-badge">TEXT[]</span></th>
-            <th>available_for_hire <span class="type-badge">BOOL</span></th>
+            <th>location <span class="type-badge">NVARCHAR</span></th>
+            <th>specialization <span class="type-badge">NVARCHAR</span></th>
+            <th>available_for_hire <span class="type-badge">BIT</span></th>
           </tr>
         </thead>
         <tbody>
           <tr style="animation-delay:0.05s">
             <td>Israel Ortiz</td>
-            <td style="color:var(--orange)">Lead SQL Developer / DBA</td>
+            <td style="color:var(--orange)">Data Systems Administrator & SQL Integration Engineer</td>
             <td class="int-val">7</td>
-            <td>Open to Relocation</td>
-            <td class="arr-val">{"SQL Expert","Query Optimization","Stored Procedures","Index Tuning","Schema Design","T-SQL & PL/SQL","Performance Analysis"}</td>
-            <td class="bool-true">true</td>
+            <td>Fredericksburg, VA — Open to CT Relocation</td>
+            <td class="arr-val">T-SQL, SSIS, SSRS, SQL Server Admin, CRM/ERP Integration, ETL Pipelines, On-Prem DB Management, Project Management</td>
+            <td class="bool-true">1</td>
           </tr>
         </tbody>
       </table>
       <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
-        <span style="color:var(--green)">●</span> 1 row returned in 0.003ms
+        <span style="color:var(--green)">●</span> (1 row affected) — Execution time: 0.003ms
       </div>
     `,
     rows: 1, time: '0.003ms'
@@ -878,33 +887,33 @@ const queries = {
 
   projects: {
     lines: [
-      `<span class="cm">-- Major projects shipped</span>`,
-      `<span class="kw">SELECT</span>`,
+      `<span class="cm">-- Major projects delivered</span>`,
+      `<span class="kw">SELECT TOP 5</span>`,
       `  <span class="col">project_name</span><span class="op">,</span> <span class="col">tech_stack</span><span class="op">,</span> <span class="col">impact</span><span class="op">,</span>`,
-      `  <span class="col">query_improvement</span><span class="op">,</span> <span class="col">year</span>`,
-      `<span class="kw">FROM</span> <span class="tbl">projects</span>`,
-      `<span class="kw">ORDER BY</span> <span class="col">year</span> <span class="kw">DESC</span>`,
-      `<span class="kw">LIMIT</span> <span class="num">5</span><span class="op">;</span>`,
+      `  <span class="col">performance_gain</span><span class="op">,</span> <span class="col">year</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">dbo.projects</span>`,
+      `<span class="kw">ORDER BY</span> <span class="col">year</span> <span class="kw">DESC</span><span class="op">;</span>`,
+      ``,
       ``
     ],
     result: () => `
       <table>
         <thead>
           <tr>
-            <th>project_name <span class="type-badge">VARCHAR</span></th>
-            <th>tech_stack <span class="type-badge">TEXT[]</span></th>
-            <th>impact <span class="type-badge">TEXT</span></th>
-            <th>query_improvement <span class="type-badge">VARCHAR</span></th>
+            <th>project_name <span class="type-badge">NVARCHAR</span></th>
+            <th>tech_stack <span class="type-badge">NVARCHAR</span></th>
+            <th>impact <span class="type-badge">NVARCHAR</span></th>
+            <th>performance_gain <span class="type-badge">NVARCHAR</span></th>
             <th>year <span class="type-badge">INT</span></th>
           </tr>
         </thead>
         <tbody>
           ${[
-            ['Zero-Downtime Migration', '{"PostgreSQL 16","pglogical","AWS DMS"}', 'Migrated 2.3TB Oracle DB with 99.999% uptime', '11min → 38sec', 2024],
-            ['Global Replication Mesh', '{"PostgreSQL","Patroni","HAProxy","Consul"}', 'Built 5-region HA cluster for fintech platform', 'RTO < 30s', 2024],
-            ['Query Performance Overhaul', '{"PostgreSQL","EXPLAIN ANALYZE","pgBadger"}', 'Reduced avg query time by 94% across 800M row tables', '11min → 38sec', 2023],
-            ['Connection Pool Redesign', '{"pgBouncer","PgCat","Kubernetes"}', 'Eliminated connection storms — 0 timeouts for 8 months', '97 idle → 0', 2023],
-            ['Automated Backup Verification', '{"PostgreSQL","Python","Terraform","RDS"}', 'Full restore + validation pipeline, audit-ready', '4hr manual → 12min', 2022],
+            ['SQL Server CRM Integration Platform', 'T-SQL, SSIS, SSRS, SQL Agent, CRM', 'Architected 35-table warehouse with 40+ SSIS ETL packages ingesting 2M+ records daily at 99.97% integrity', 'Sub-200ms aggregation queries', 2024],
+            ['Enterprise T-SQL Performance Engine', 'T-SQL, SQL Server, SSRS, Execution Plans', 'Built automated T-SQL auditing system across 500+ queries on 10M+ record on-prem SQL Server instance', '73% faster execution, 61% less server load', 2024],
+            ['High-Frequency Transactional DB Overhaul', 'SQL Server, T-SQL, SSIS, DB Security', 'Overhauled on-prem SQL Server processing 4M+ daily transactions for insurance-adjacent client', '4.8s → 90ms peak query time, $24K/mo saved', 2023],
+            ['Multi-Tenant SSIS Reporting Infrastructure', 'T-SQL, SSIS, SSRS, CRM/ERP Feeds', 'Deployed multi-tenant SQL Server reporting for 12 client databases with 110+ stored procedures', '47 hrs/week → under 3 hours reporting', 2023],
+            ['Automated SQL Import/Export Operations Engine', 'SQL Server, SSIS, SQL Agent, Windows Server', 'Built corporate SQL import/export engine managing all CRM data feeds and vendor integrations', '9 hrs → 11 min processing cycles', 2022],
           ].map((r, i) => `
             <tr style="animation-delay:${0.05 + i*0.07}s">
               <td style="color:var(--blue)">${r[0]}</td>
@@ -917,7 +926,7 @@ const queries = {
         </tbody>
       </table>
       <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
-        <span style="color:var(--green)">●</span> 5 rows returned in 0.012ms
+        <span style="color:var(--green)">●</span> (5 rows affected) — Execution time: 0.012ms
       </div>
     `,
     rows: 5, time: '0.012ms'
@@ -927,66 +936,73 @@ const queries = {
     lines: [
       `<span class="cm">-- Skills ranked by proficiency</span>`,
       `<span class="kw">SELECT</span> <span class="col">skill_name</span><span class="op">,</span> <span class="col">category</span><span class="op">,</span>`,
-      `  <span class="fn">REPEAT</span><span class="op">(</span><span class="str">'█'</span><span class="op">,</span> <span class="col">proficiency</span><span class="op">) ||</span>`,
-      `  <span class="fn">REPEAT</span><span class="op">(</span><span class="str">'░'</span><span class="op">,</span> <span class="num">10</span> <span class="op">-</span> <span class="col">proficiency</span><span class="op">)</span> <span class="kw">AS</span> <span class="col">level</span>`,
-      `<span class="kw">FROM</span> <span class="tbl">skills</span>`,
+      `  <span class="fn">REPLICATE</span><span class="op">(</span><span class="str">'█'</span><span class="op">,</span> <span class="col">proficiency</span><span class="op">) +</span>`,
+      `  <span class="fn">REPLICATE</span><span class="op">(</span><span class="str">'░'</span><span class="op">,</span> <span class="num">10</span> <span class="op">-</span> <span class="col">proficiency</span><span class="op">)</span> <span class="kw">AS</span> <span class="col">level</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">dbo.skills</span>`,
       `<span class="kw">ORDER BY</span> <span class="col">proficiency</span> <span class="kw">DESC</span><span class="op">,</span> <span class="col">category</span><span class="op">;</span>`,
       ``,
       ``
     ],
     result: () => {
       const skills = [
-        ['Advanced Query Optimization', 'SQL Core', 10],
-        ['Execution Plan Analysis', 'SQL Core', 10],
-        ['T-SQL / PL/SQL', 'SQL Core', 10],
-        ['Window Functions & CTEs', 'SQL Core', 10],
-        ['Index Architecture & Tuning', 'Performance', 9],
+        ['T-SQL Development & Optimization', 'SQL Core', 10],
+        ['SQL Server Administration (On-Prem)', 'Administration', 10],
+        ['SSIS (Integration Services)', 'ETL & Integration', 10],
+        ['SSRS (Reporting Services)', 'Reporting', 10],
         ['Stored Procedures & Triggers', 'SQL Core', 9],
-        ['Schema Design & Normalization', 'Architecture', 9],
-        ['Query Profiling & Diagnostics', 'Performance', 9],
-        ['PostgreSQL', 'Platform', 8],
-        ['SQL Server (MSSQL)', 'Platform', 8],
-        ['Oracle DB', 'Platform', 8],
-        ['MySQL / MariaDB', 'Platform', 8],
-        ['AWS RDS / Aurora', 'Cloud', 7],
-        ['ETL Pipeline Design', 'Data Eng', 7],
-        ['Python (DB automation)', 'Scripting', 6],
+        ['ETL Pipeline Architecture', 'ETL & Integration', 9],
+        ['Database Security & Access Control', 'Administration', 9],
+        ['CRM / ERP Data Integration', 'Integration', 9],
+        ['SQL Server Agent & Job Scheduling', 'Administration', 8],
+        ['Schema Design & Normalization', 'Architecture', 8],
+        ['Execution Plan Analysis & Tuning', 'Performance', 8],
+        ['Windows Server Environments', 'Infrastructure', 8],
+        ['SQL IT Project Management', 'Leadership', 7],
+        ['UAT & Production Deployment', 'Leadership', 7],
+        ['Technical Documentation', 'Leadership', 7],
+        ['Microsoft Office Suite', 'Productivity', 7],
       ];
       return `
         <table>
           <thead>
             <tr>
-              <th>skill_name <span class="type-badge">VARCHAR</span></th>
-              <th>category <span class="type-badge">VARCHAR</span></th>
+              <th>skill_name <span class="type-badge">NVARCHAR</span></th>
+              <th>category <span class="type-badge">NVARCHAR</span></th>
               <th>proficiency <span class="type-badge">INT</span></th>
-              <th>level <span class="type-badge">TEXT</span></th>
+              <th>level <span class="type-badge">NVARCHAR</span></th>
             </tr>
           </thead>
           <tbody>
-            ${skills.map((s, i) => `
+            ${skills.map((s, i) => {
+              let pillClass = 'pill-orange';
+              if (s[1] === 'Administration' || s[1] === 'Infrastructure') pillClass = 'pill-red';
+              else if (s[1] === 'ETL & Integration' || s[1] === 'Integration') pillClass = 'pill-blue';
+              else if (s[1] === 'Leadership' || s[1] === 'Productivity') pillClass = 'pill-purple';
+              else if (s[1] === 'Reporting' || s[1] === 'Architecture' || s[1] === 'Performance') pillClass = 'pill-green';
+              return `
               <tr style="animation-delay:${0.03 + i*0.05}s">
                 <td style="color:var(--white)">${s[0]}</td>
-                <td><span class="skill-pill ${['SQL Core','Performance','Architecture'].includes(s[1]) ? 'pill-orange' : s[1]==='Cloud'?'pill-blue':s[1]==='Scripting'?'pill-purple':s[1]==='Platform'?'pill-red':'pill-green'}">${s[1]}</span></td>
+                <td><span class="skill-pill ${pillClass}">${s[1]}</span></td>
                 <td class="int-val">${s[2]}</td>
                 <td style="color:var(--green);letter-spacing:1px;font-size:0.75rem">${'█'.repeat(s[2])}${'░'.repeat(10-s[2])}</td>
               </tr>
-            `).join('')}
+            `}).join('')}
           </tbody>
         </table>
         <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
-          <span style="color:var(--green)">●</span> 15 rows returned in 0.008ms
+          <span style="color:var(--green)">●</span> (${skills.length} rows affected) — Execution time: 0.008ms
         </div>
       `;
     },
-    rows: 15, time: '0.008ms'
+    rows: 16, time: '0.008ms'
   },
 
   certifications: {
     lines: [
       `<span class="cm">-- Active certifications</span>`,
       `<span class="kw">SELECT</span> <span class="col">cert_name</span><span class="op">,</span> <span class="col">issuer</span><span class="op">,</span>`,
-      `  <span class="col">issued_date</span><span class="op">,</span> <span class="col">expiry</span><span class="op">,</span> <span class="col">status</span>`,
-      `<span class="kw">FROM</span> <span class="tbl">certifications</span>`,
+      `  <span class="col">issued_date</span><span class="op">,</span> <span class="col">expiry</span><span class="op">,</span> <span class="col">primary_skill</span><span class="op">,</span> <span class="col">status</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">dbo.certifications</span>`,
       `<span class="kw">WHERE</span> <span class="col">status</span> <span class="op">=</span> <span class="str">'ACTIVE'</span>`,
       `<span class="kw">ORDER BY</span> <span class="col">issued_date</span> <span class="kw">DESC</span><span class="op">;</span>`,
       ``,
@@ -996,19 +1012,21 @@ const queries = {
       <table>
         <thead>
           <tr>
-            <th>cert_name <span class="type-badge">VARCHAR</span></th>
-            <th>issuer <span class="type-badge">VARCHAR</span></th>
+            <th>cert_name <span class="type-badge">NVARCHAR</span></th>
+            <th>issuer <span class="type-badge">NVARCHAR</span></th>
             <th>issued_date <span class="type-badge">DATE</span></th>
             <th>expiry <span class="type-badge">DATE</span></th>
-            <th>primary_sql_skill <span class="type-badge">TEXT</span></th>
-            <th>status <span class="type-badge">ENUM</span></th>
+            <th>primary_skill <span class="type-badge">NVARCHAR</span></th>
+            <th>status <span class="type-badge">NVARCHAR</span></th>
           </tr>
         </thead>
         <tbody>
           ${[
-            ['DP-300: Azure Database Admin Associate', 'Microsoft', '2025-01-15', '2027-01-15', 'T-SQL tuning, execution plans, index mgmt (SQL Server / Azure SQL)', true],
-            ['Oracle Database SQL Certified Associate', 'Oracle', '2025-03-01', '2027-03-01', 'Oracle SQL — joins, subqueries, DDL/DML, NVL, DECODE, ROWNUM', true],
-            ['AWS Certified Database Specialty', 'Amazon', '2024-11-20', '2026-11-20', 'SQL at cloud scale — RDS engines, Aurora, distributed query optimization', true],
+            ['Oracle Database SQL Certified Associate', 'Oracle', '2025-03-01', '2027-03-01', 'Enterprise SQL Fundamentals', true],
+            ['Azure Database Administrator Associate (DP-300)', 'Microsoft', '2025-01-15', '2027-01-15', 'T-SQL & SQL Server Administration', true],
+            ['AWS Certified Database — Specialty', 'Amazon Web Services', '2024-11-20', '2026-11-20', 'SQL Server at Cloud & Hybrid Scale', true],
+            ['ITIL 4 Foundation — IT Service Management', 'PeopleCert / Axelos', '2024-09-10', 'No Expiry', 'IT Project & Service Lifecycle Management', true],
+            ['Data Analyst Associate (PL-300)', 'Microsoft', '2024-06-15', '2026-06-15', 'SSRS & Enterprise Reporting', true],
           ].map((r,i) => `
             <tr style="animation-delay:${0.05+i*0.08}s">
               <td style="color:var(--blue)">${r[0]}</td>
@@ -1022,18 +1040,18 @@ const queries = {
         </tbody>
       </table>
       <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
-        <span style="color:var(--green)">●</span> 3 rows returned in 0.005ms
+        <span style="color:var(--green)">●</span> (5 rows affected) — Execution time: 0.005ms
       </div>
     `,
-    rows: 3, time: '0.005ms'
+    rows: 5, time: '0.005ms'
   },
 
   highlights: {
     lines: [
-      `<span class="cm">-- Career highlights view</span>`,
+      `<span class="cm">-- Career highlights</span>`,
       `<span class="kw">SELECT</span> <span class="op">*</span>`,
-      `<span class="kw">FROM</span> <span class="tbl">career_highlights</span>`,
-      `<span class="kw">WHERE</span> <span class="fn">EXTRACT</span><span class="op">(</span><span class="kw">YEAR FROM</span> <span class="col">event_date</span><span class="op">)</span> <span class="op">>=</span> <span class="num">2020</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">dbo.career_highlights</span>`,
+      `<span class="kw">WHERE</span> <span class="fn">YEAR</span><span class="op">(</span><span class="col">event_date</span><span class="op">)</span> <span class="op">>=</span> <span class="num">2020</span>`,
       `<span class="kw">ORDER BY</span> <span class="col">impact_score</span> <span class="kw">DESC</span><span class="op">;</span>`,
       ``,
       ``,
@@ -1044,18 +1062,20 @@ const queries = {
         <thead>
           <tr>
             <th>event_date <span class="type-badge">DATE</span></th>
-            <th>milestone <span class="type-badge">TEXT</span></th>
-            <th>company <span class="type-badge">VARCHAR</span></th>
+            <th>milestone <span class="type-badge">NVARCHAR</span></th>
+            <th>company <span class="type-badge">NVARCHAR</span></th>
             <th>impact_score <span class="type-badge">INT</span></th>
           </tr>
         </thead>
         <tbody>
           ${[
-            ['2024-03-01', 'Led zero-downtime Oracle → PostgreSQL migration of 2.3TB', 'DataCore Inc.', 100],
-            ['2023-09-15', 'Architected 5-region HA cluster serving 40M daily transactions', 'DataCore Inc.', 98],
-            ['2023-04-01', 'Cut p99 query latency from 11min to 38sec, saving $120k/yr', 'DataCore Inc.', 97],
-            ['2022-07-10', 'Promoted to Senior DBA — managed fleet of 200+ database instances', 'CloudBase LLC', 90],
-            ['2021-01-20', 'Built automated backup validation pipeline — first in company history', 'CloudBase LLC', 85],
+            ['2024-08-01', 'Engineered 90+ SSIS packages — reduced processing from 9 hrs to 11 min', 'SUCCESS Magazine', 100],
+            ['2024-03-15', 'Led 3 major SQL platform overhauls through UAT to production', 'SUCCESS Magazine', 98],
+            ['2023-06-01', 'Overhauled on-prem SQL Server processing 4M+ daily transactions — 4.8s → 90ms', 'Freelance (Insurance Client)', 97],
+            ['2023-01-10', 'Deployed multi-tenant SSIS/SSRS reporting infra serving 12 client databases', 'Local Lift Consultancy', 95],
+            ['2022-09-01', 'Administered mission-critical SQL Server across 350+ facilities — 99.98% uptime', 'SPCA International', 92],
+            ['2021-04-15', 'Built automated SSIS reporting pipelines processing 500K+ records per batch', 'SPCA International', 88],
+            ['2020-07-01', 'Implemented database security & CRM data feed management across enterprise', 'SPCA International', 85],
           ].map((r,i) => `
             <tr style="animation-delay:${0.05+i*0.07}s">
               <td style="color:var(--gray)">${r[0]}</td>
@@ -1067,19 +1087,19 @@ const queries = {
         </tbody>
       </table>
       <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
-        <span style="color:var(--green)">●</span> 5 rows returned in 0.009ms
+        <span style="color:var(--green)">●</span> (7 rows affected) — Execution time: 0.009ms
       </div>
     `,
-    rows: 5, time: '0.009ms'
+    rows: 7, time: '0.009ms'
   },
 
   contact: {
     lines: [
       `<span class="cm">-- Let's connect</span>`,
       `<span class="kw">SELECT</span> <span class="col">channel</span><span class="op">,</span> <span class="col">handle</span><span class="op">,</span> <span class="col">preferred</span>`,
-      `<span class="kw">FROM</span> <span class="tbl">contact_info</span>`,
+      `<span class="kw">FROM</span> <span class="tbl">dbo.contact_info</span>`,
       `<span class="kw">WHERE</span> <span class="col">engineer_id</span> <span class="op">=</span> <span class="num">1</span>`,
-      `  <span class="kw">AND</span> <span class="col">public</span> <span class="op">=</span> <span class="bool-true">TRUE</span><span class="op">;</span>`,
+      `  <span class="kw">AND</span> <span class="col">public</span> <span class="op">=</span> <span class="num">1</span><span class="op">;</span>`,
       ``,
       ``,
       ``
@@ -1088,9 +1108,9 @@ const queries = {
       <table>
         <thead>
           <tr>
-            <th>channel <span class="type-badge">VARCHAR</span></th>
-            <th>handle <span class="type-badge">TEXT</span></th>
-            <th>preferred <span class="type-badge">BOOL</span></th>
+            <th>channel <span class="type-badge">NVARCHAR</span></th>
+            <th>handle <span class="type-badge">NVARCHAR</span></th>
+            <th>preferred <span class="type-badge">BIT</span></th>
           </tr>
         </thead>
         <tbody>
@@ -1102,15 +1122,15 @@ const queries = {
             <tr style="animation-delay:${0.05+i*0.08}s">
               <td style="color:var(--purple)">${r[0]}</td>
               <td class="link-val">${r[1]}</td>
-              <td class="${r[2] ? 'bool-true' : 'bool-false'}">${r[2]}</td>
+              <td class="${r[2] ? 'bool-true' : 'bool-false'}">${r[2] ? '1' : '0'}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
       <div style="padding:1rem;font-size:0.78rem;color:var(--gray)">
-        <span style="color:var(--green)">●</span> 3 rows returned in 0.002ms
+        <span style="color:var(--green)">●</span> (3 rows affected) — Execution time: 0.002ms
         <br><br>
-        <span style="color:var(--yellow)">⚡</span> <span style="color:var(--white)">INSERT INTO outreach(message) VALUES('Hello Israel') — avg response time: 2 hours</span>
+        <span style="color:var(--yellow)">⚡</span> <span style="color:var(--white)">EXEC sp_hire_me @message = 'Hello Israel' — avg response time: 2 hours</span>
       </div>
     `,
     rows: 3, time: '0.002ms'
@@ -1152,7 +1172,7 @@ function executeQuery() {
     execTime.textContent = '  Execution time: ' + q.time;
     statusMsg.textContent = 'Query executed successfully';
     fill.style.width = '0%';
-    showNotify('Query Complete', `${q.rows} row${q.rows !== 1 ? 's' : ''} returned in ${q.time}`);
+    showNotify('Query Complete', `(${q.rows} row${q.rows !== 1 ? 's' : ''} affected) in ${q.time}`);
   }, 600);
 }
 
@@ -1189,18 +1209,18 @@ function initPortfolio() {
 
 // ── SPLASH LOGIC ──
 const connMessages = [
-  { delay: 0,    cls: 'log-info', text: '» Resolving host portfolio.israelortiz.dev…' },
-  { delay: 320,  cls: 'log-ok',   text: '✓ Host resolved: 142.250.80.46' },
-  { delay: 600,  cls: 'log-info', text: '» Opening TCP connection on port 5432…' },
+  { delay: 0,    cls: 'log-info', text: '» Resolving server portfolio.israelortiz.dev\\SQLEXPRESS…' },
+  { delay: 320,  cls: 'log-ok',   text: '✓ Server resolved: 142.250.80.46' },
+  { delay: 600,  cls: 'log-info', text: '» Opening TCP connection on port 1433…' },
   { delay: 950,  cls: 'log-ok',   text: '✓ TCP connection established' },
-  { delay: 1150, cls: 'log-info', text: '» Initiating SSL/TLS handshake…' },
-  { delay: 1480, cls: 'log-ok',   text: '✓ TLS 1.3 — cipher: TLS_AES_256_GCM_SHA384' },
-  { delay: 1700, cls: 'log-info', text: '» Authenticating as guest…' },
-  { delay: 2050, cls: 'log-ok',   text: '✓ Authentication successful (scram-sha-256)' },
-  { delay: 2250, cls: 'log-info', text: '» Connecting to database israel_ortiz_portfolio…' },
-  { delay: 2600, cls: 'log-ok',   text: '✓ Connected — PostgreSQL 16.2 on x86_64-pc-linux-gnu' },
-  { delay: 2800, cls: 'log-info', text: '» Loading schema metadata…' },
-  { delay: 3100, cls: 'log-ok',   text: '✓ Schema loaded — 4 tables, 2 views, 2 functions' },
+  { delay: 1150, cls: 'log-info', text: '» Initiating TDS handshake (SQL Server 2022)…' },
+  { delay: 1480, cls: 'log-ok',   text: '✓ TDS 7.4 — encryption: TLS 1.3' },
+  { delay: 1700, cls: 'log-info', text: '» Authenticating as guest (SQL Authentication)…' },
+  { delay: 2050, cls: 'log-ok',   text: '✓ Authentication successful — LOGIN guest mapped to db_datareader' },
+  { delay: 2250, cls: 'log-info', text: '» USE israel_ortiz_portfolio — loading schema metadata…' },
+  { delay: 2600, cls: 'log-ok',   text: '✓ Connected — SQL Server 2022 on Windows Server 2022' },
+  { delay: 2800, cls: 'log-info', text: '» Loading objects: 4 tables, 2 views, 2 stored procs, 2 SSIS packages…' },
+  { delay: 3100, cls: 'log-ok',   text: '✓ Schema loaded — Object Explorer ready' },
   { delay: 3300, cls: 'log-ok',   text: '✓ Ready.' },
 ];
 
@@ -1221,12 +1241,12 @@ const barStops = [
 ];
 
 const statusLabels = [
-  { delay: 0,    text: 'Resolving host…' },
+  { delay: 0,    text: 'Resolving server…' },
   { delay: 600,  text: 'Establishing connection…' },
-  { delay: 1150, text: 'Negotiating TLS…' },
+  { delay: 1150, text: 'Negotiating TDS/TLS…' },
   { delay: 1700, text: 'Authenticating…' },
   { delay: 2250, text: 'Loading database…' },
-  { delay: 2800, text: 'Fetching schema…' },
+  { delay: 2800, text: 'Fetching schema & SSIS packages…' },
   { delay: 3300, text: 'Connection established ✓' },
 ];
 
